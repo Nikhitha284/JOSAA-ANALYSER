@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOSAA Analyser</title>
+  <link rel="shortcut icon" href="http://127.0.0.1:8000/logo" type="image/x-icon">
+</head>
+<style>
+  body {
+    box-sizing: border-box;
+    width: 100%;
+    padding-bottom: 100px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    background-image: url(http://127.0.0.1:8000/wall);
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  /* For WebKit browsers (Chrome, Safari, etc.) */
+  body::-webkit-scrollbar {
+    width: 0.5em;
+  }
+
+  body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 9999px;
+  }
+
+  /* For Firefox */
+  body {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  body::-moz-scrollbar {
+    width: 0.5em;
+  }
+
+  body::-moz-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 9999px;
+  }
+
+
+
+  .main {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding-left: 60px;
+    padding-right: 60px;
+    color: black;
+  }
+
+  .head {
+    padding-left: 80px;
+  }
+
+
+  /*------------------*/
+  .cont_1 {
+    margin-top: 0px;
+    margin-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 40px;
+    padding-left: 30px;
+    position: relative;
+  }
+
+  .sub {
+    display: flex;
+    /* Add flexbox display */
+    justify-content: flex-start;
+    /* Align items from start */
+    align-items: flex-start;
+    /* Align items from start */
+  }
+
+  .insti_group,
+  .branch_group,
+  .cat-group,
+  .year-group,
+  .round-group,
+  .gender_group {
+    margin-right: 2vw;
+  }
+
+
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  button {
+    position: absolute;
+    margin-top: 20px;
+    padding: 9px 20px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 999;
+  }
+
+  button:hover {
+    background-color: #45a049;
+  }
+
+  /*----------------------------------------------------------------*/
+
+  .cont_2 {
+    margin-top: 0px;
+    padding: 10px;
+    color: black;
+  }
+
+  #chartCanvas {
+    height: 100%;
+    max-height: 400px;
+    width: 100%;
+  }
+
+  /*-------------------------------------------------*/
+  .navbar {
+    background-color: #333;
+    height: 60px;
+    margin-top: -9px;
+    margin-left: -8px;
+    margin-right: 0px;
+
+  }
+
+  .nav-list {
+    list-style-type: none;
+    padding-top: 40px;
+    margin: 0;
+    padding: 0;
+    margin-left: 80px;
+    display: flex;
+    font-size: large;
+  }
+
+  .nav-list li {
+    margin-right: 100px;
+    padding-top: 20px;
+    font-weight: 400;
+  }
+
+  .nav-list li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  .nav-list li a:hover {
+    color: #f2f2f2;
+  }
+</style>
+<script>
+  var subjectObject = {
+    "Indian Institute of Technology Bhubaneswar": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering and M. Tech. in Structural Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering and M.Tech in Transportation Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering and M. Tech. in Mechanical System Design (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering and M. Tech. in Thermal Science & Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering and M.Tech. in Environmental Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering and M.Tech Power Electronics and Drives (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering with M.Tech. in Manufacturing Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering and M.Tech. in Materials Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Bombay": { "Aerospace Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering with M.Tech. in Communications and Signal Processing (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering with M.Tech. in Microelectronics (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Energy Engineering with M.Tech. in Energy Systems Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics and M.Tech. with specialization in Nano Science (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering and M.Tech. in Computer Integrated Manufacturing (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering and Materials Science (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering and Materials Science with M.Tech. in Ceramics and Composites (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering and Materials Science with M.Tech. in Metallurgical Process Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Economics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "BS in Mathematics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Environmental Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering & Materials Science (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Energy Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Mandi": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Bio Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Data Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Delhi": { "Biochemical Engineering and Biotechnology (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biotechnology and Biochemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (Power and Automation) (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Production and Industrial Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Textile Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering and Computational Mechanics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Energy Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Indore": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering and Materials Science (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Kharagpur": { "Aerospace Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Aerospace Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Agricultural and Food Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Agricultural and Food Engineering with M.Tech. in any of the listed specializations (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Applied Geology (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Architecture (5 Years, Bachelor of Architecture)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biotechnology and Biochemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biotechnology and Biochemical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering with any of the listed specialization (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Economics (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering with M.Tech. in any of the listed specializations (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Electrical Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Electrical Communication Engineering with M.Tech. in any of the listed specializations (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Exploration Geophysics (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Industrial and Systems Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Industrial and Systems Engineering with M.Tech. in Industrial and Systems Engineering and Management (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Instrumentation Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Manufacturing Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Manufacturing Science and Engineering with M.Tech. in Industrial and Systems Engineering and Management (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering with M.Tech. in any of the listed specializations (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Safety Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Ocean Engineering and Naval Architecture (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Ocean Engineering and Naval Architecture (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Quality Engineering Design and Manufacturing (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Applied Geology (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Economics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Exploration Geophysics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Hyderabad": { "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Science (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Science and Metallurgical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Artificial Intelligence (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biomedical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biotechnology and Bioinformatics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computational Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Industrial Chemistry (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (IC Design and Technology) (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Jodhpur": { "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Bio Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Bio Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Artificial Intelligence and Data Science (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil and Infrastructure Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry with Specialization (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics with Specialization (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Kanpur": { "Aerospace Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biological Sciences and Bioengineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Earth Sciences (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Economics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Scientific Computing (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Statistics and Data Science (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Madras": { "Aerospace Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Aerospace Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biological Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biological Sciences (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Design (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Naval Architecture and Ocean Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Naval Architecture and Ocean Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Gandhinagar": { "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Patna": { "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical and Electronics Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Artificial Intelligence and Data Science (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Roorkee": { "Applied Mathematics (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Architecture (5 Years, Bachelor of Architecture)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Bio Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Geological Technology (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Geophysical Technology (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Polymer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Production and Industrial Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemistry (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (5 Years, Integrated Master of Science)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biosciences and Bioengineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Sciences (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Economics (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics & Computing (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Physics (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Data Science and Artificial Intelligence (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian School of Mines Dhanbad": { "Applied Geology (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Applied Geophysics (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Instrumentation Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Environmental Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mineral Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Machinery Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Petroleum Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Ropar": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical and Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology (BHU) Varanasi": { "Biochemical Engineering with M.Tech. in Biochemical Engineering and Biotechnology (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Bioengineering with M.Tech in Biomedical Technology (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Ceramic Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Ceramic Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering with M.Tech. in Structural Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering with M.Tech. in Power Electronics (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Industrial Chemistry (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Science and Technology (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Metallurgical Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Pharmaceutics (4 Years, Bachelor of Pharmaceutics)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Pharmaceutics (5 Years, Bachelor and Master of Pharmaceutics(Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Industrial Chemistry (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Pharmaceutical Engineering & Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Pharmaceutical Engineering & Technology (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Architecture (5 Years, Bachelor of Architecture)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Guwahati": { "Bio Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Science and Technology (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Biosciences and Bioengineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Data Science and Artificial Intelligence (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Energy Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Bhilai": { "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Data Science and Artificial Intelligence (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechatronics Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Goa": { "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Palakkad": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Data Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Tirupati": { "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Jammu": { "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Materials Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology Dharwad": { "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical and Biochemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil and Infrastructure Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Interdisciplinary Sciences (5 Years, Bachelor of Science and Master of Science (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] },
+    "Indian Institute of Technology (ISM) Dhanbad": { "Applied Geology (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Applied Geophysics (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Chemical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Civil Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Computer Science and Engineering (5 Years, Bachelor and Master of Technology (Dual Degree))": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electrical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Communication Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Electronics and Instrumentation Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Engineering Physics (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Environmental Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mathematics and Computing (5 Years, Integrated Master of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mechanical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mineral Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mining Machinery Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Petroleum Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'], "Mineral and Metallurgical Engineering (4 Years, Bachelor of Technology)": ['Gender-Neutral', 'Female-only (including Supernumerary)'] }
+  }
+  window.onload = function () {
+    var subjectSel = document.getElementById("subject");
+    var topicSel = document.getElementById("topic");
+    var chapterSel = document.getElementById("chapter");
+    for (var x in subjectObject) {
+      subjectSel.options[subjectSel.options.length] = new Option(x, x);
+    }
+    subjectSel.onchange = function () {
+      //empty Chapters- and Topics- dropdowns
+      chapterSel.length = 1;
+      topicSel.length = 1;
+      //display correct values
+      for (var y in subjectObject[this.value]) {
+        topicSel.options[topicSel.options.length] = new Option(y, y);
+      }
+    }
+    topicSel.onchange = function () {
+      //empty Chapters dropdown
+      chapterSel.length = 1;
+      //display correct values
+      var z = subjectObject[subjectSel.value][this.value];
+      for (var i = 0; i < z.length; i++) {
+        chapterSel.options[chapterSel.options.length] = new Option(z[i], z[i]);
+      }
+    }
+  }
+</script>
+
+<body>
+  <nav class="navbar">
+    <ul class="nav-list">
+      <li style="cursor: pointer;"><a onclick="window.location.href='http://127.0.0.1:8000'">Home</a></li>
+    </ul>
+  </nav>
+  <div class="head">
+    <h1>Year-wise Graph Analysis</h1>
+  </div>
+  <div class="main">
+    <form method="post" id="cont_1" class="cont_1">
+      {% csrf_token %}
+      <div class="sub">
+        <div id="insti_group" class="insti_group">
+          <label for="insti">Institution Name:</label>
+          <select id="subject" name="insti" oninput="toggleBranchField()">
+            <option value="" selected="selected">Select an institute</option>
+          </select>
+        </div>
+        <div id="branch_group" class="branch_group">
+          <label for="branch">Branch Name:</label>
+          <select id="topic" name="branch" oninput="toggleGenderField()">
+            <option value="" selected="selected">Select a branch</option>
+          </select>
+        </div>
+        <div id="genderGroup" class="gender_group" style="display: none;">
+          <label for="gender">Gender:</label>
+          <select id="chapter" name="gender" oninput="toggleCatField()">
+            <option value="" selected="selected">select an option</option>
+          </select>
+        </div>
+        <div id="cat_group" class="cat-group" style="display: none;">
+          <label for="category">Category:</label>
+          <select id="category" name="category" oninput="toggleRoundField()">
+            <option value="none" selected disabled hidden>Select an Option</option>
+            <option value="OPEN">OPEN</option>
+            <option value="OBC-NCL">OBC-NCL</option>
+            <option value="EWS">EWS</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+          </select>
+        </div>
+        <div id="round_group" class="round-group" style="display: none;">
+          <label for="round_number">Round:</label>
+          <select id="round_number" name="round_number">
+            <option value="none" selected disabled hidden>Select an Option</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <!-- Add more options for other round numbers -->
+          </select>
+        </div>
+      </div>
+      <div class="button">
+        <button type="submit" id="submitBtn">Submit</button>
+      </div>
+    </form>
+    <div class="cont_2">
+      <h3 id="resultHeading" style="display: none;"></h3>
+      <div class="chartCanvas"><canvas id="chartCanvas"></canvas>
+      </div>
+
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+
+    function toggleBranchField() {
+      var insti = document.getElementById("topic");
+      var branchGroup = document.getElementById("branch_group");
+
+      if (insti.value === "none") {
+        branchGroup.style.display = "none";
+      } else {
+        branchGroup.style.display = "block";
+      }
+    }
+
+    // Initially hide the branch_group
+    document.addEventListener("DOMContentLoaded", function () {
+      var branchGroup = document.getElementById("branch_group");
+      branchGroup.style.display = "none";
+    });
+
+
+    function toggleGenderField() {
+      var instituteInput = document.getElementById("topic");
+      var genderGroup = document.getElementById("genderGroup");
+
+      if (instituteInput.value !== "") {
+        genderGroup.style.display = "block";
+        genderGroup.style.transition = "display 2s"; // Adjust the transition duration as needed
+      } else {
+        genderGroup.style.display = "none";
+        genderGroup.style.transition = "display 2s"; // Adjust the transition duration as needed
+      }
+    }
+
+
+    function toggleCatField() {
+      var genderGroup = document.getElementById("genderGroup");
+      var categoryGroup = document.getElementsByClassName("cat-group")[0];
+      var genderSelect = document.getElementById("chapter");
+
+      if (genderSelect.value !== "0") {
+        genderGroup.style.display = "block";
+        categoryGroup.style.display = "block";
+      } else {
+        genderGroup.style.display = "none";
+        categoryGroup.style.display = "none";
+      }
+    }
+
+    function toggleRoundField() {
+      var yearGroup = document.getElementById("cat-group");
+      var roundGroup = document.getElementById("round_group");
+      var categorySelect = document.getElementById("category");
+
+      if (categorySelect.value !== "none") {
+        roundGroup.style.display = "block";
+        yearGroup.style.display = "block";
+      } else {
+        roundGroup.style.display = "none";
+        yearGroup.style.display = "none";
+      }
+    }
+    /*-------------------------------------------------------*/
+    $(document).ready(function () {
+      $('#cont_1').submit(function (event) {
+        event.preventDefault();
+
+        var formData = $(this).serialize();
+        var branch = document.getElementById("topic").value;
+        var institute = document.getElementById("subject").value;
+
+        // Update the text content and show the result heading
+        var resultHeading = document.getElementById("resultHeading");
+        resultHeading.textContent = "Rank Analysis for " + branch + " in " + institute;
+        resultHeading.style.display = "block";
+        $.ajax({
+          type: 'POST',
+          url: '/api/get-chart-data/',
+          data: formData,
+          success: function (data) {
+            var years = data.years;
+            var openingRanks = data.opening_ranks;
+            var closingRanks = data.closing_ranks;
+
+            // Create the chart
+
+            var ctx = document.getElementById('chartCanvas').getContext('2d');
+            var existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+              existingChart.destroy();
+            }
+            var chart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: years,
+                datasets: [
+                  {
+                    label: 'Opening Ranks',
+                    data: openingRanks,
+                    borderColor: 'red',
+                    backgroundColor: 'transparent',
+                  },
+                  {
+                    label: 'Closing Ranks',
+                    data: closingRanks,
+                    borderColor: 'blue',
+                    backgroundColor: 'transparent',
+                  }
+                ]
+              },
+              options: {
+                scales: {
+                  x: {
+                    ticks: {
+                      color: 'black',
+                    }
+                  },
+                  y: {
+                    ticks: {
+                      color: 'black',
+                    }
+                  }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                  padding: 20
+                }
+              }
+            });
+          },
+          error: function (xhr, status, error) {
+            console.log(xhr.responseText);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

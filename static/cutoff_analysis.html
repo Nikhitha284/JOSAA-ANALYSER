@@ -1,0 +1,333 @@
+<!-- cutoff_analysis.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOSAA Analyser</title>
+    <link rel="shortcut icon" href="http://127.0.0.1:8000/logo" type="image/x-icon">
+</head>
+<style>
+    body {
+        box-sizing: border-box;
+        width: 100%;
+        overflow: hidden;
+        padding-bottom: 70vh;
+        background-image: url(http://127.0.0.1:8000/wall);
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .main {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        padding-left: 60px;
+        padding-right: 60px;
+        color: black;
+    }
+
+    .head {
+        padding-left: 80px;
+    }
+
+    /*------------------*/
+    .cont_1 {
+        margin-top: 0px;
+        margin-right: 20px;
+        padding-top: 10px;
+        padding-bottom: 40px;
+        padding-left: 30px;
+        position: relative;
+    }
+
+    .sub {
+        display: flex;
+        /* Add flexbox display */
+        justify-content: flex-start;
+        /* Align items from start */
+        align-items: flex-start;
+        /* Align items from start */
+    }
+
+    .group,
+    .cat-group,
+    .year-group,
+    .round-group,
+    .gender-group {
+        margin-right: 2vw;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    button {
+        position: relative;
+        margin-top: 20px;
+        padding: 9px 20px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        z-index: 999;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    /*----------------------------------------------------------------*/
+    /* style_cutoff.css */
+    .cont_2 {
+        margin-top: 0px;
+        padding: 20px;
+        color: black;
+        height: 400px;
+        overflow: auto;
+    }
+
+    /* Default table styles */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        table-layout: fixed;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+        text-align: center;
+        border: 2px solid black;
+        border-radius: 5px;
+    }
+
+    tr {
+        border: 1px solid black;
+        border-radius: 5px;
+    }
+
+    /*-------------------------------------------------*/
+    .navbar {
+        background-color: #333;
+        height: 10vh;
+        margin-top: -9px;
+        margin-left: -8px;
+        margin-right: -100px;
+    }
+
+    .nav-list {
+        list-style-type: none;
+        padding-top: 40px;
+        margin: 0;
+        padding: 0;
+        margin-left: 80px;
+        display: flex;
+        font-size: large;
+    }
+
+    .nav-list li {
+        margin-right: 100px;
+        padding-top: 20px;
+        font-weight: 400;
+    }
+
+    .nav-list li a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .nav-list li a:hover {
+        color: #f2f2f2;
+    }
+
+    /*----------------------------------------------------*/
+</style>
+
+<body>
+    <nav class="navbar">
+        <ul class="nav-list" style="cursor: pointer;">
+            <li><a onclick="window.location.href='http://127.0.0.1:8000'">Home</a></li>
+        </ul>
+    </nav>
+    <div class="head">
+        <h1>'Fit' based on your Rank</h1>
+    </div>
+    <div class="main">
+        <form method="post" class="cont_1">
+            {% csrf_token %}
+            <div class="sub">
+                <div class="group">
+                    <label for="rank">Rank:</label>
+                    <input type="number" id="rank" name="rank" oninput="toggleGenderField()">
+                </div>
+
+                <div id="genderGroup" class="gender-group" style="display: none;">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" oninput="toggleCatField()">
+                        <option selected="selected" value="0">Select an option</option>
+                        <option value="Gender-Neutral">Gender-Neutral</option>
+                        <option value="Female-only (including Supernumerary)">Female-only (including Supernumerary)
+                        </option>
+                    </select>
+                </div>
+                <div id="cat_group" class="cat-group" style="display: none;">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" oninput="toggleYearField()">
+                        <option value="none" selected disabled hidden>Select an Option</option>
+                        <option value="OPEN">OPEN</option>
+                        <option value="OBC-NCL">OBC-NCL</option>
+                        <option value="EWS">EWS</option>
+                        <option value="SC">SC</option>
+                        <option value="ST">ST</option>
+                    </select>
+                </div>
+
+                <div id="year_group" class="year-group" style="display: none;">
+                    <label for="year">Year:</label>
+                    <select id="year" name="year" oninput="toggleRoundField()">
+                        <option value="none" selected disabled hidden>Select an Option</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <!-- Add more options for other years -->
+                    </select>
+                </div>
+
+                <div id="round_group" class="round-group" style="display: none;">
+                    <label for="round_number">Round Number:</label>
+                    <select id="round_number" name="round_number">
+                        <option value="none" selected disabled hidden>Select an Option</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <!-- Add more options for other round numbers -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="button">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+        <div class="cont_2">
+            {% if cutoff_data %}
+            <!---<h2>Cutoff Analysis Results</h2>-->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Institute</th>
+                        <th>Year</th>
+                        <th>Branch</th>
+                        <th>Category</th>
+                        <th>Gender</th>
+                        <th>Opening Rank</th>
+                        <th>Closing Rank</th>
+                        <th>Round Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in cutoff_data %}
+                    <tr>
+                        <td>{{ data.Institute_name }}</td>
+                        <td>{{ data.year }}</td>
+                        <td>{{ data.branch }}</td>
+                        <td>{{ data.category }}</td>
+                        <td>{{ data.gender }}</td>
+                        <td>{{ data.opening_rank }}</td>
+                        <td>{{ data.closing_rank }}</td>
+                        <td>{{ data.round_no }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No cutoff data available for the selected options reason might be either the selected
+                branch/reservation(gender or category) not introduced in the selected year</p>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function toggleGenderField() {
+            var rankInput = document.getElementById("rank");
+            var genderGroup = document.getElementById("genderGroup");
+
+            if (rankInput.value !== "") {
+                genderGroup.style.display = "block";
+                genderGroup.style.transition = "display 2s"; // Adjust the transition duration as needed
+            } else {
+                genderGroup.style.display = "none";
+                genderGroup.style.transition = "display 2s"; // Adjust the transition duration as needed
+            }
+        }
+
+
+        function toggleCatField() {
+            var genderGroup = document.getElementById("genderGroup");
+            var categoryGroup = document.getElementsByClassName("cat-group")[0];
+            var genderSelect = document.getElementById("gender");
+
+            if (genderSelect.value !== "0") {
+                genderGroup.style.display = "block";
+                categoryGroup.style.display = "block";
+            } else {
+                genderGroup.style.display = "none";
+                categoryGroup.style.display = "none";
+            }
+        }
+
+        function toggleYearField() {
+            var categoryGroup = document.getElementById("cat_group");
+            var yearGroup = document.getElementById("year_group");
+            var categorySelect = document.getElementById("category");
+
+            if (categorySelect.value !== "none") {
+                categoryGroup.style.display = "block";
+                yearGroup.style.display = "block";
+            } else {
+                categoryGroup.style.display = "none";
+                yearGroup.style.display = "none";
+            }
+        }
+
+        function toggleRoundField() {
+            var yearGroup = document.getElementById("year_group");
+            var roundGroup = document.getElementById("round_group");
+            var categorySelect = document.getElementById("year");
+
+            if (categorySelect.value !== "none") {
+                roundGroup.style.display = "block";
+                yearGroup.style.display = "block";
+            } else {
+                roundGroup.style.display = "none";
+                yearGroup.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

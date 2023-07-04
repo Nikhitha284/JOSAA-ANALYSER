@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOSAA Analyser</title>
+  <link rel="shortcut icon" href="http://127.0.0.1:8000/logo" type="image/x-icon">
+</head>
+<style>
+  body {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 100px;
+    background-color: rgb(61, 60, 60);
+    color: black;
+    opacity: 1;
+    margin-bottom: 10px;
+  }
+
+  .main {
+    font-family: 'Carter One';
+    font-size: 18px;
+    background-image: url(http://127.0.0.1:8000/cloud);
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-align: center;
+    margin-top: -8px;
+    margin-left: -9px;
+    height: 45vh;
+    padding-top: 15px;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+  }
+
+  #slider {
+    border-radius: 5px;
+    background-color: white;
+    margin: 0 auto;
+    width: 800px;
+    max-width: 100%;
+    text-align: center;
+    height: 50vh;
+    cursor: auto;
+    position: relative;
+    z-index: 2;
+    top: 150px;
+  }
+
+
+  #slider input[type=radio] {
+    display: none;
+  }
+
+  #slider label {
+    cursor: auto;
+    text-decoration: none;
+  }
+
+  #slides {
+    border-radius: 10px;
+    position: relative;
+    z-index: 1;
+    max-height: calc(100vh - 100px);
+    cursor: auto;
+  }
+
+  /*overfloww*/
+  #overflow {
+    background-color: white;
+    border-radius: 5px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 200%;
+    padding-right: 17px;
+    cursor: auto;
+  }
+
+  #overflow::-webkit-scrollbar {
+    width: 0px;
+  }
+
+  /*----------------------------------------------------------*/
+
+  #slide1:checked~#slides .inner {
+    margin-left: 0;
+    margin-right: 100%;
+  }
+
+  #slide2:checked~#slides .inner {
+    margin-left: -100%;
+    margin-right: 0px;
+  }
+
+  #slides .inner {
+    border-radius: 10px;
+    transition: margin-left 800ms cubic-bezier(0.770, 0.000, 0.175, 1.000);
+    width: 400%;
+    height: 70vh;
+    display: flex;
+  }
+
+  #slides .slide {
+    width: 25%;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+  }
+
+  /*-----------------------------------------------*/
+
+  #slides .slide_1 {
+    margin-top: 50px;
+    border-radius: 5px;
+    height: 800px;
+    cursor: auto;
+    overflow-y: auto;
+  }
+
+  .slide_1_con {
+    cursor: auto;
+  }
+
+
+  #slides .slide_1::-webkit-scrollbar {
+    width: 0px;
+  }
+
+  .cutoff,
+  .branch {
+    background-color: white;
+    color: black;
+    font-size: 15px;
+    padding: 9px 30px 30px;
+    box-shadow: 4px 4px 8px 8px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+    border-radius: 5px;
+    margin-top: 30px;
+    height: 100px;
+    width: 450px;
+    cursor: pointer;
+  }
+
+  .cutoff:hover,
+  .branch:hover {
+    background-color: #dedada;
+  }
+
+  /*-------------------------------------------------*/
+  #slides .slide_2 {
+
+    margin-left: -100px;
+    padding-right: 0px;
+    margin-top: 20px;
+    border-radius: 5px;
+    height: 800px;
+    cursor: auto;
+    position: relative;
+  }
+
+  #slides .slide_2_con::-webkit-scrollbar {
+    width: 0px;
+  }
+
+  .institutes {
+    position: absolute;
+    top: 20;
+    left: 200px;
+    right: 200px;
+    z-index: 0;
+  }
+
+  .heading {
+    font-size: medium;
+    font-weight: 105;
+  }
+
+  .subh {
+    padding-left: 180px;
+    padding-bottom: 20px;
+    text-align: center;
+  }
+
+  table {
+    width: 150%;
+    border-collapse: separate;
+  }
+
+  table th,
+  table td {
+    border-collapse: separate;
+    border-radius: 5px;
+    padding: 20px 100px;
+  }
+
+  table th {
+    border-collapse: separate;
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+
+  table tr:hover {
+    background-color: #e5e5e5;
+  }
+
+  table td {
+    margin-right: 20px;
+    border: 1px solid #ccc;
+  }
+
+  .branch-toggle {
+    cursor: pointer;
+    font-weight: bold;
+    width: auto;
+  }
+
+  .branch-list {
+    list-style-type: none;
+    margin-top: 10px;
+    display: none;
+    font-weight: 100;
+  }
+
+  .branch-list li {
+    margin-bottom: 5px;
+  }
+
+  .branch-toggle:before {
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  .branch-toggle.open:before {
+    content: '-';
+  }
+
+  .slide_2_con {
+    margin-top: 15px;
+    max-height: 100%;
+    overflow-y: auto;
+    color: black;
+    overflow-x: hidden;
+  }
+
+  /*---------------------------------------------*/
+  #controls {
+    margin: -180px 80px 80px 0px;
+    width: 100%;
+    height: -100px;
+    z-index: 1;
+    position: relative;
+  }
+
+  #controls label {
+    transition: opacity 0.2s ease-out;
+    display: none;
+    width: 50px;
+    height: 50px;
+    opacity: .6;
+    font-size: 24px;
+    line-height: 0px;
+    text-align: center;
+    position: absolute;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .arrowr {
+    margin: -10px -18px 0px 0px;
+  }
+
+  #controls label:hover {
+    opacity: 1;
+  }
+
+  #controls label:before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 25px;
+  }
+
+
+  #controls label.arrow-left:before {
+    transform: rotate(225deg);
+  }
+
+  #controls label::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 25px;
+    color: #ccc;
+  }
+
+
+  #controls label.arrow-left::after {
+    transform: rotate(225deg);
+  }
+
+
+  #slide1:checked~#controls label:nth-child(2) {
+    right: 0;
+    display: block;
+  }
+
+
+  #slide2:checked~#controls label:nth-child(1) {
+    left: 0;
+    display: block;
+  }
+
+  #slide1:checked~#controls label:nth-last-child(2) {
+    left: 0;
+    display: block;
+  }
+
+  #slide2:checked~#controls label:nth-last-child(1) {
+    right: 0;
+    display: block;
+  }
+
+  #bullets {
+    margin: 150px 0 0;
+    text-align: center;
+  }
+
+  #bullets label {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    background: #ccc;
+    margin: 0 10px;
+  }
+
+  /*-------------------------------*/
+  @media only screen and (max-width: 1000px) {
+    #slider {
+      margin-left: 10vw;
+      width: 80%;
+      top: 150px;
+      align-items: center;
+    }
+
+    #slides .slide_1,
+    #slides .slide_2 {
+      cursor: auto;
+    }
+
+    .cutoff,
+    .branch {
+      width: 100%;
+    }
+
+    table th,
+    table td {
+      padding: 10px 20px;
+    }
+  }
+
+  @media only screen and (max-width: 480px) {
+    .main {
+      padding-top: 20px;
+      height: 160px;
+    }
+
+    .base {
+      display: none;
+    }
+
+    .cutoff,
+    .branch {
+      width: 100px
+    }
+
+
+    tbody {
+      width: 100px;
+    }
+
+
+    .institutes {
+      position: absolute;
+      top: 20;
+      left: 150px;
+      right: 10px;
+      z-index: 999;
+    }
+
+
+    .subh {
+      padding-left: 180px;
+      padding-bottom: 20px;
+      text-align: center;
+      font-size: small;
+    }
+
+
+    table th,
+    table td {
+      border-collapse: separate;
+      border-radius: 5px;
+      padding: 20px 100px;
+      width: 100px;
+    }
+
+    .heading {
+      font-size: small;
+    }
+  }
+
+  @media only screen and (max-height: 720px) {
+    .main {
+      padding-top: 5px;
+    }
+
+    #slider {
+      top: 80px;
+    }
+
+    #slides .slide {
+      width: 50%;
+    }
+
+    #slides .inner {
+      width: 200%;
+      padding-bottom: 60px;
+    }
+
+    table th,
+    table td {
+      padding: 10px;
+    }
+  }
+</style>
+
+<body>
+  <div class="main">
+    <h1>JOSAA Analyser</h1>
+    <div class="base">
+      <h2>unlocking insights of josaa counselling rounds</h2>
+    </div>
+  </div>
+  <div id="slider">
+    <input type="radio" name="slider" id="slide1" checked>
+    <input type="radio" name="slider" id="slide2">
+    <div id="slides">
+      <div id="overflow">
+        <div class="inner">
+          <div class="slide slide_1">
+            <div class="slide_1_con">
+              <div class="branch" onclick="window.location.href = 'http://127.0.0.1:8000/graph/'">
+                <h2>Year-wise Metrics</h2>
+                <p>Provides a structured analysis of opening and closing ranks have changed over the past few years</p>
+              </div>
+              <div class="branch" onclick="window.location.href = 'http://127.0.0.1:8000/rgraph/'">
+                <h2>Round-wise Metrics</h2>
+                <p>Provides a structured analysis of how the opening and closing ranks vary according to the rounds in
+                  different years</p>
+              </div>
+              <div class="cutoff" onclick="window.location.href = 'http://127.0.0.1:8000/cutoff/'">
+                <h2>'Fit' based on your rank</h2>
+                <p>Explore the allocation of All India Rank (AIR) by JOSAA in recent years to determine where you might
+                  fit</p>
+              </div>
+              <div class="cutoff" onclick="window.location.href = 'http://127.0.0.1:8000/plot/'">
+                <h2>Overall Metrics</h2>
+                <p> Provides an overall structured analysis of opening and closing ranks over the past few years across
+                  multiple rounds for a specific institute and the branches it offers</p>
+              </div>
+              <div class="branch" onclick="window.location.href = 'http://127.0.0.1:8000/branchanalyser/'">
+                <h2>Branch Classifier</h2>
+                <p>Retrieve all relevant information about your favorite branch</p>
+              </div>
+              <div class="branch" onclick="window.location.href = 'http://127.0.0.1:8000/instianalyser/'">
+                <h2>Institute Classifier</h2>
+                <p>Retrieve all relevant information about your favorite institute</p>
+              </div>
+              <div class="branch" onclick="window.location.href = 'http://127.0.0.1:8000/rankanalyser/'">
+                <h2>All-in-one Classifier</h2>
+                <p> Get a consolidated report on rankings in your favorite institute and branch over the past few years
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="slide slide_2">
+            <div class="slide_2_con">
+              <div class="subh">
+                <h2>Here's the list of top 10 institutes</h2>
+              </div>
+              <div class="institutes">
+                <table class="above-inner">
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-1" onclick="toggleList('branch-list-1')">
+                      <span class="heading">Indian Institute of Technology Bombay</span>
+                      <ul class="branch-list" id="branch-list-1">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Metallurgical Engineering & Materials Science</li>
+                        <li>Aerospace Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Physics</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-2" onclick="toggleList('branch-list-2')">
+                      <span class="heading">Indian Institute of Technology Madras</span>
+                      <ul class="branch-list" id="branch-list-2">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Metallurgical Engineering & Materials Science</li>
+                        <li>Aerospace Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Physics</li>
+                        <li>Ocean Engineering</li>
+                        <li>Biotechnology</li>
+                        <li>Engineering Design</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-3" onclick="toggleList('branch-list-3')">
+                      <span class="heading">Indian Institute of Technology Delhi</span>
+                      <ul class="branch-list" id="branch-list-3">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Energy Science and Engineering</li>
+                        <li>Applied Mechanics</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Materials Science & Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Physics</li>
+                        <li>Mathematics</li>
+                        <li>Biochemical Engineering & Biotechnology</li>
+                        <li>Textile and Fibre Engineering</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-4" onclick="toggleList('branch-list-4')">
+                      <span class="heading">Indian Institute of Technology Kanpur</span>
+                      <ul class="branch-list" id="branch-list-4">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Aerospace Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Materials Science & Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Biological Sciences and Bio-Engineering</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-5" onclick="toggleList('branch-list-5')">
+                      <span class="heading">Indian Institute of Technology Kharagpur</span>
+                      <ul class="branch-list" id="branch-list-5">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Energy Science and Engineering</li>
+                        <li>Applied Mechanics</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Materials Science & Metallurgy</li>
+                        <li>Chemical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Physics</li>
+                        <li>Mathematics</li>
+                        <li>Ocean Engineering & Naval Architecture</li>
+                        <li>Mining Engineering</li>
+                        <li>Biochemical Engineering & Biotechnology</li>
+                        <li>Industrial and Systems Engineering</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-6" onclick="toggleList('branch-list-6')">
+                      <span class="heading">Indian Institute of Technology Roorkee</span>
+                      <ul class="branch-list" id="branch-list-6">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Biotechnology</li>
+                        <li>Electronics & Communication Engineering</li>
+                        <li>Metallurgical & Materials Engineering</li>
+                        <li>Physics</li>
+                        <li>Chemistry</li>
+                        <li>Mathematics</li>
+                        <li>Earthquake Engineering</li>
+                        <li>Geology and Geophysics</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-7" onclick="toggleList('branch-list-7')">
+                      <span class="heading">Indian Institute of Technology Guwahati</span>
+                      <ul class="branch-list" id="branch-list-7">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electronics & Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Biotechnology</li>
+                        <li>Mathematics and Computing</li>
+                        <li>Physics</li>
+                        <li>Chemistry</li>
+                        <li>Design</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-8" onclick="toggleList('branch-list-8')">
+                      <span class="heading">Indian Institute of Technology Hyderabad</span>
+                      <ul class="branch-list" id="branch-list-8">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Biomedical Engineering</li>
+                        <li>Engineering Science</li>
+                        <li>Mathematics and Computing</li>
+                        <li>Materials Science and Metallurgical Engineering</li>
+                        <li>Chemistry</li>
+                        <li>Physics</li>
+                        <li>Design</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-9" onclick="toggleList('branch-list-9')">
+                      <span class="heading">Indian Institute of Technology (BHU) Varanasi</span>
+                      <ul class="branch-list" id="branch-list-9">
+                        <li>Computer Science & Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Electronics Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Metallurgical Engineering</li>
+                        <li>Materials Science and Technology</li>
+                        <li>Biomedical Engineering</li>
+                        <li>Pharmaceutical Engineering and Technology</li>
+                        <li>Ceramic Engineering</li>
+                        <li>Mining Engineering</li>
+                        <li>Chemistry</li>
+                        <li>Physics</li>
+                        <li>Mathematics</li>
+                      </ul>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="branch-toggle" id="branch-toggle-10" onclick="toggleList('branch-list-10')">
+                      <span class="heading">Indian Institute of Technology Dhanbad</span>
+                      <ul class="branch-list" id="branch-list-10">
+                        <li>Computer Science and Engineering</li>
+                        <li>Electrical Engineering</li>
+                        <li>Mechanical Engineering</li>
+                        <li>Civil Engineering</li>
+                        <li>Chemical Engineering</li>
+                        <li>Mining Engineering</li>
+                        <li>Metallurgical and Materials Engineering</li>
+                        <li>Chemistry</li>
+                        <li>Mathematics</li>
+                        <li>Physics</li>
+                        <li>Environmental Science and Engineering</li>
+                        <li>Mineral Engineering</li>
+                        <li>Petroleum Engineering</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="controls">
+      <label for="slide1" class="arrow arrowl">&#10094;</label>
+      <label for="slide2" class="arrow arrowr">&#10095;</label>
+    </div>
+  </div>
+</body>
+<script>
+  //function to toggle branches list
+  function toggleList(id) {
+    const list = document.getElementById(id);
+    list.style.display = list.style.display === 'none' ? 'block' : 'none';
+  }
+  function toggleBranches(index) {
+    const toggle = document.getElementById(`branch-toggle-${index}`);
+    toggle.classList.toggle('open');
+    toggleList(`branch-list-${index}`);
+  }
+</script>
+
+</html>
